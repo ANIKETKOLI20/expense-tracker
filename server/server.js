@@ -1,25 +1,45 @@
+import express from "express";
+import http from "http";
+import cors from "cors";
+
 import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+
 import mergedResolvers from "./resolvers/index.js";
 import mergedTypeDefs from "./typeDefs/index.js";
+
+const app = express();
+
+const httpServer = http.createServer(app);
 
 async function startServer() {
   // Create an instance of ApolloServer
   const server = new ApolloServer({
     typeDefs: mergedTypeDefs,
     resolvers: mergedResolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
-  try {
-    // Start the standalone server
-    const { url } = await startStandaloneServer(server, {
-      listen: { port: 4000 }, // Specify the port or let it choose a default one
-    });
+  await server.start();
 
-    console.log(`🚀 Server ready at ${url}`);
-  } catch (error) {
-    console.error("Failed to start the server:", error);
-  }
+  app.use(
+    "/",
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    }),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req, res }) => ({ token: req.headers.token }),
+    })
+  );
+
+  const PORT = 4000;
+
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}/`);
+  });
 }
 
 startServer();
