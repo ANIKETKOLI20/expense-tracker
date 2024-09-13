@@ -1,20 +1,41 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import RadioButton from "../components/RadioButton";
-import InputField from "../components/InputField";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import RadioButton from '../components/RadioButton';
+import InputField from '../components/InputField';
+import { useMutation } from '@apollo/client';
+import { SIGN_UP } from '../graphql/mutations/user.mutation';
+import toast from 'react-hot-toast';
 
 const SignUpPage = () => {
 	const [signUpData, setSignUpData] = useState({
-		name: "",
-		username: "",
-		password: "",
-		gender: "",
+		name: '',
+		username: '',
+		password: '',
+		gender: '',
 	});
+
+	const [signup, { loading }] = useMutation(SIGN_UP, {
+		refetchQueries: ['GetAuthenticatedUser'], // user.query.js and help redirect to home page
+	});
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		try {
+			await signup({
+				variables: {
+					input: signUpData,
+				},
+			});
+		} catch (error) {
+			console.error('Error:', error);
+			toast.error(error.message);
+		}
+	};
 
 	const handleChange = (e) => {
 		const { name, value, type } = e.target;
 
-		if (type === "radio") {
+		if (type === 'radio') {
 			setSignUpData((prevData) => ({
 				...prevData,
 				gender: value,
@@ -25,11 +46,6 @@ const SignUpPage = () => {
 				[name]: value,
 			}));
 		}
-	};
-
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		console.log(signUpData);
 	};
 
 	return (
@@ -48,6 +64,7 @@ const SignUpPage = () => {
 								name='name'
 								value={signUpData.name}
 								onChange={handleChange}
+								icon='fa-user' // User icon for Full Name
 							/>
 							<InputField
 								label='Username'
@@ -55,8 +72,8 @@ const SignUpPage = () => {
 								name='username'
 								value={signUpData.username}
 								onChange={handleChange}
+								icon='fa-user' // User icon for Username
 							/>
-
 							<InputField
 								label='Password'
 								id='password'
@@ -64,6 +81,8 @@ const SignUpPage = () => {
 								type='password'
 								value={signUpData.password}
 								onChange={handleChange}
+								icon='fa-eye' // Eye icon for Password
+								showHidePassword
 							/>
 							<div className='flex gap-10'>
 								<RadioButton
@@ -72,7 +91,7 @@ const SignUpPage = () => {
 									name='gender'
 									value='male'
 									onChange={handleChange}
-									checked={signUpData.gender === "male"}
+									checked={signUpData.gender === 'male'}
 								/>
 								<RadioButton
 									id='female'
@@ -80,7 +99,7 @@ const SignUpPage = () => {
 									name='gender'
 									value='female'
 									onChange={handleChange}
-									checked={signUpData.gender === "female"}
+									checked={signUpData.gender === 'female'}
 								/>
 							</div>
 
@@ -88,14 +107,15 @@ const SignUpPage = () => {
 								<button
 									type='submit'
 									className='w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:bg-black  focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+									disabled={loading}
 								>
-									Sign Up
+									{loading ? 'Loading...' : 'Sign Up'}
 								</button>
 							</div>
 						</form>
 						<div className='mt-4 text-sm text-gray-600 text-center'>
 							<p>
-								Already have an account?{" "}
+								Already have an account?{' '}
 								<Link to='/login' className='text-black hover:underline'>
 									Login here
 								</Link>
