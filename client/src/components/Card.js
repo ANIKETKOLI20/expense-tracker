@@ -21,7 +21,7 @@ const Card = ({ transaction, authUser }) => {
 	let { category, amount, location, date, paymentType, description } = transaction;
 	const cardClass = categoryColorMap[category];
 	const [deleteTransaction, { loading }] = useMutation(DELETE_TRANSACTION, {
-		refetchQueries: ["GetTransactions"],
+		refetchQueries: ["GetTransactions", "GetTransactionStatistics"],
 	});
 
 	// Capitalize the first letter of the description
@@ -47,10 +47,10 @@ const Card = ({ transaction, authUser }) => {
 				<div className='flex flex-row items-center justify-between'>
 					<h2 className='text-lg font-bold text-white'>{category}</h2>
 					<div className='flex items-center gap-2'>
-						{!loading && <FaTrash className={"cursor-pointer"} onClick={handleDelete} />}
+						{!loading && <FaTrash className={"cursor-pointer text-white"} onClick={handleDelete} />}
 						{loading && <div className='w-6 h-6 border-t-2 border-b-2  rounded-full animate-spin'></div>}
 						<Link to={`/transaction/${transaction._id}`}>
-							<HiPencilAlt className='cursor-pointer' size={20} />
+							<HiPencilAlt className='cursor-pointer text-white' size={20} />
 						</Link>
 					</div>
 				</div>
@@ -72,7 +72,7 @@ const Card = ({ transaction, authUser }) => {
 				</p>
 				<div className='flex justify-between items-center'>
 					<p className='text-xs text-black font-bold'>{formattedDate}</p>
-					<img src={authUser?.profilePicture} className='h-8 w-8 border rounded-full' alt='' />
+					<img src={authUser?.profilePicture} className='w-11 h-11 rounded-full border' alt='' />
 				</div>
 			</div>
 		</div>
