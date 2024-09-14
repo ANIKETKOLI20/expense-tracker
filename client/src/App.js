@@ -32,7 +32,7 @@ function App() {
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/transcation" element={authUser ? <TranscationPage /> : <Navigate to="/login" />} />
+        <Route path="/transaction/:id" element={authUser ? <TranscationPage /> : <Navigate to="/login" />} />
         <Route path="/not-found" element={<NotFoundPage />} />
       </Routes>
       <Toaster />
