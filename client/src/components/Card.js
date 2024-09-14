@@ -78,4 +78,4 @@ const Card = ({ transaction, authUser }) => {
 		</div>
 	);
 };
-export default Card;
+export default Card
