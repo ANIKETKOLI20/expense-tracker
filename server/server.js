@@ -10,6 +10,7 @@ import connectMongo from "connect-mongodb-session";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { fileURLToPath } from 'url';
 
 import { buildContext } from "graphql-passport";
 
@@ -30,6 +31,9 @@ const app = express();
 const httpServer = http.createServer(app);
 
 const MongoDBStore = connectMongo(session);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const store = new MongoDBStore({
 	uri: process.env.MONGO_URI,
@@ -59,6 +63,14 @@ const server = new ApolloServer({
 	resolvers: mergedResolvers,
 	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "../client/build")));
+  
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+	});
+  }
 
 // Ensure we wait for our server to start
 await server.start();
