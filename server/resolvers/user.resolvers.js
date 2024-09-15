@@ -44,7 +44,7 @@ const userResolver = {
 			try {
 				const { username, password } = input;
 				if (!username || !password) throw new Error("All fields are required");
-				const { user } = await context.authenticate("graphql-local", { username, password });
+				const { user } = await context.authenticate("graphql-local", { username, password }); // Added authenticate
 
 				await context.login(user);
 				return user;
@@ -55,7 +55,7 @@ const userResolver = {
 		},
 		logout: async (_, __, context) => {
 			try {
-				await context.logout();
+				await context.logout(); // context.logout()
 				context.req.session.destroy((err) => {
 					if (err) throw err;
 				});
@@ -71,7 +71,7 @@ const userResolver = {
 	Query: {
 		authUser: async (_, __, context) => {
 			try {
-				const user = await context.getUser();
+				const user = await context.getUser(); // getUser()
 				return user;
 			} catch (err) {
 				console.error("Error in authUser: ", err);
